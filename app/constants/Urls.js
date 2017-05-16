@@ -1,0 +1,1 @@
+export const PERSONS_URL = 'http://192.168.53.176:8000/persons'
