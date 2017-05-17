@@ -17,7 +17,6 @@ export function* requestPersonList() {
 
 }
 
-
 export function* watchRequestPersonList() {
   while (true) {
     yield take(types.REQUEST_PERSON_LIST)

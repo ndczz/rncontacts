@@ -6,6 +6,7 @@ import {
   Text,
   TouchableOpacity,
   View,
+  Button
 } from 'react-native'
 
 class Main extends React.Component {
@@ -23,14 +24,19 @@ class Main extends React.Component {
     }
 
     this.renderItem = this.renderItem.bind(this)
-  }
 
-  componentDidMount() {
-
+    if (props.data.loading == false && props.data.personList.length == 0) {
+      const { personActions } = props
+      personActions.requestPersonList()
+    }
   }
 
   press(person) {
     console.log(`${person.name + ' ' + person.surname} clicked`)
+  }
+
+  addPressed() {
+    this.props.navigation.navigate('Create')
   }
 
   renderItem(person) {
@@ -58,6 +64,9 @@ class Main extends React.Component {
   render() {
     return (
       <View style={styles.container}>
+        <Button
+          title='ADD!'
+          onPress={() => this.addPressed()} />
         <ListView
           style={styles.list}
           dataSource={this.state.dataSource}
@@ -69,15 +78,12 @@ class Main extends React.Component {
             />
           }
         />
-
       </View>
     )
   }
-
 }
 
 export default Main
-
 
 const styles = StyleSheet.create({
   container: {
