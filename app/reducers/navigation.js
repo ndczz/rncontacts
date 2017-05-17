@@ -1,2 +1,31 @@
-const initialState = 1
-//todo
+import { NavigationActions } from 'react-navigation'
+import * as types from '../constants/ActionTypes'
+
+const createNavReducer = function (navigator) {
+  const initialState = navigator.router.getStateForAction(
+    navigator.router.getActionForPathAndParams('Main'))
+
+  const navReducer = (state = initialState, action) => {
+    let nextState
+    switch (action.type) {
+      case types.GOTO_BACK:
+        nextState = navigator.router.getStateForAction(
+          NavigationActions.back(),
+          state)
+        break
+      case types.GOTO_CREATE:
+        nextState = navigator.router.getStateForAction(
+          NavigationActions.navigate({ routeName: 'Create' }),
+          state)
+        break
+      default:
+        nextState = navigator.router.getStateForAction(action, state)
+        break
+    }
+    return nextState || state
+  }
+
+  return navReducer
+}
+
+export default createNavReducer

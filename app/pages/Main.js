@@ -36,7 +36,8 @@ class Main extends React.Component {
   }
 
   addPressed() {
-    this.props.navigation.navigate('Create')
+    const { navActions } = this.props
+    navActions.gotoCreate()
   }
 
   renderItem(person) {

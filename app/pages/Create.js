@@ -10,7 +10,7 @@ import {
 class Create extends React.Component {
 
   constructor(props) {
-    super(props)    
+    super(props)
     this.state = {
       name: '',
       surname: '',
@@ -23,12 +23,12 @@ class Create extends React.Component {
     this.saveClicked.bind(this)
   }
 
-  componentWillReceiveProps(nextProps) {    
+  componentWillReceiveProps(nextProps) {
     this.state.loading = nextProps.data.loading
     this.state.person = nextProps.data.person
     if (nextProps.data.person != null) {
-      const nav = this.props.navigation
-      nav.goBack()
+      const { navActions } = this.props
+      navActions.gotoBack()
     }
   }
 

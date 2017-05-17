@@ -46501,7 +46501,7 @@ function throwOnWrongReactAPI(key) {
 
 module.exports = throwOnWrongReactAPI;
 }, 415, null, "throwOnWrongReactAPI");
-__d(/* qweqweqwe/app/root.js */function(global, require, module, exports) {Object.defineProperty(exports, "__esModule", {
+__d(/* rncontacts/app/root.js */function(global, require, module, exports) {Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
@@ -46515,15 +46515,16 @@ var _store = require(459            ); // 459 = ./store/store
 
 var _store2 = babelHelpers.interopRequireDefault(_store);
 
-var _index = require(482               ); // 482 = ./sagas/index.js
+var _index = require(483               ); // 483 = ./sagas/index.js
 
 var _index2 = babelHelpers.interopRequireDefault(_index);
 
-var _app = require(489               ); // 489 = ./containers/app
+var _app = require(490               ); // 490 = ./containers/app
 
 var _app2 = babelHelpers.interopRequireDefault(_app);
 
-var store = (0, _store2.default)();
+console.log(_app.AppNav);
+var store = (0, _store2.default)(_app.AppNav);
 
 store.runSaga(_index2.default);
 
@@ -46536,7 +46537,7 @@ var Root = function Root() {
 };
 
 exports.default = Root;
-}, 416, null, "qweqweqwe/app/root.js");
+}, 416, null, "rncontacts/app/root.js");
 __d(/* react-redux/lib/index.js */function(global, require, module, exports) {'use strict';
 
 exports.__esModule = true;
@@ -48783,7 +48784,7 @@ var _index2 = babelHelpers.interopRequireDefault(_index);
 
 var middlewares = [];
 
-var _require = require(476           ), // 476 = redux-logger
+var _require = require(477           ), // 477 = redux-logger
     logger = _require.logger;
 
 var sagaMiddleware = (0, _reduxSaga2.default)();
@@ -48796,8 +48797,9 @@ if (__DEV__) {
 
 var createStoreWithmiddleware = _redux.applyMiddleware.apply(undefined, middlewares)(_redux.createStore);
 
-function configureStore(initialState) {
-  var store = createStoreWithmiddleware(_index2.default, initialState);
+function configureStore(nav, initialState) {
+  var rootReducer = (0, _index2.default)(nav);
+  var store = createStoreWithmiddleware(rootReducer, initialState);
   store.runSaga = sagaMiddleware.run;
   store.close = function () {
     return store.dispatch(_reduxSaga.END);
@@ -51082,12 +51084,20 @@ var _person = require(475       ); // 475 = ./person
 
 var _person2 = babelHelpers.interopRequireDefault(_person);
 
-var rootReducer = (0, _redux.combineReducers)({
-  persons: _persons2.default,
-  person: _person2.default
-});
+var _navigation = require(476           ); // 476 = ./navigation
 
-exports.default = rootReducer;
+var _navigation2 = babelHelpers.interopRequireDefault(_navigation);
+
+var createRootReducer = function createRootReducer(nav) {
+  var navigationReducer = (0, _navigation2.default)(nav);
+  return (0, _redux.combineReducers)({
+    persons: _persons2.default,
+    person: _person2.default,
+    navigationReducer: navigationReducer
+  });
+};
+
+exports.default = createRootReducer;
 }, 472, null, "rncontacts/app/reducers/index.js");
 __d(/* rncontacts/app/reducers/persons.js */function(global, require, module, exports) {Object.defineProperty(exports, "__esModule", {
   value: true
@@ -51101,7 +51111,7 @@ var types = babelHelpers.interopRequireWildcard(_ActionTypes);
 
 var initialState = {
   loading: false,
-  personList: {}
+  personList: []
 };
 
 function persons() {
@@ -51177,6 +51187,26 @@ function person() {
   }
 }
 }, 475, null, "rncontacts/app/reducers/person.js");
+__d(/* rncontacts/app/reducers/navigation.js */function(global, require, module, exports) {Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+var createNavReducer = function createNavReducer(nav) {
+  var initialState = nav.router.getStateForAction(nav.router.getActionForPathAndParams('Main'));
+  console.log(initialState);
+
+  var navReducer = function navReducer() {
+    var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : initialState;
+    var action = arguments[1];
+
+    var nextState = nav.router.getStateForAction(action, state);
+    return nextState || state;
+  };
+
+  return navReducer;
+};
+
+exports.default = createNavReducer;
+}, 476, null, "rncontacts/app/reducers/navigation.js");
 __d(/* redux-logger/lib/index.js */function(global, require, module, exports) {'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -51194,11 +51224,11 @@ var _extends = Object.assign || function (target) {
   }return target;
 };
 
-var _core = require(477     ); // 477 = ./core
+var _core = require(478     ); // 478 = ./core
 
-var _helpers = require(478        ); // 478 = ./helpers
+var _helpers = require(479        ); // 479 = ./helpers
 
-var _defaults = require(481         ); // 481 = ./defaults
+var _defaults = require(482         ); // 482 = ./defaults
 
 var _defaults2 = _interopRequireDefault(_defaults);
 
@@ -51301,7 +51331,7 @@ exports.defaults = _defaults2.default;
 exports.createLogger = createLogger;
 exports.logger = defaultLogger;
 exports.default = defaultLogger;
-}, 476, null, "redux-logger/lib/index.js");
+}, 477, null, "redux-logger/lib/index.js");
 __d(/* redux-logger/lib/core.js */function(global, require, module, exports) {'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -51316,9 +51346,9 @@ var _typeof = typeof Symbol === "function" && typeof (typeof Symbol === "functio
 
 exports.printBuffer = printBuffer;
 
-var _helpers = require(478        ); // 478 = ./helpers
+var _helpers = require(479        ); // 479 = ./helpers
 
-var _diff = require(479     ); // 479 = ./diff
+var _diff = require(480     ); // 480 = ./diff
 
 var _diff2 = _interopRequireDefault(_diff);
 
@@ -51445,7 +51475,7 @@ function printBuffer(buffer, options) {
     }
   });
 }
-}, 477, null, "redux-logger/lib/core.js");
+}, 478, null, "redux-logger/lib/core.js");
 __d(/* redux-logger/lib/helpers.js */function(global, require, module, exports) {"use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -51464,7 +51494,7 @@ var formatTime = exports.formatTime = function formatTime(time) {
 };
 
 var timer = exports.timer = typeof performance !== "undefined" && performance !== null && typeof performance.now === "function" ? performance : Date;
-}, 478, null, "redux-logger/lib/helpers.js");
+}, 479, null, "redux-logger/lib/helpers.js");
 __d(/* redux-logger/lib/diff.js */function(global, require, module, exports) {'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -51472,7 +51502,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = diffLogger;
 
-var _deepDiff = require(480        ); // 480 = deep-diff
+var _deepDiff = require(481        ); // 481 = deep-diff
 
 var _deepDiff2 = _interopRequireDefault(_deepDiff);
 
@@ -51567,7 +51597,7 @@ function diffLogger(prevState, newState, logger, isCollapsed) {
   }
 }
 module.exports = exports['default'];
-}, 479, null, "redux-logger/lib/diff.js");
+}, 480, null, "redux-logger/lib/diff.js");
 __d(/* deep-diff/index.js */function(global, require, module, exports) {
 ;(function (root, factory) {
   'use strict';
@@ -51980,7 +52010,7 @@ __d(/* deep-diff/index.js */function(global, require, module, exports) {
 
   return accumulateDiff;
 });
-}, 480, null, "deep-diff/index.js");
+}, 481, null, "deep-diff/index.js");
 __d(/* redux-logger/lib/defaults.js */function(global, require, module, exports) {"use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -52026,7 +52056,7 @@ exports.default = {
   transformer: undefined
 };
 module.exports = exports["default"];
-}, 481, null, "redux-logger/lib/defaults.js");
+}, 482, null, "redux-logger/lib/defaults.js");
 __d(/* rncontacts/app/sagas/index.js */function(global, require, module, exports) {Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -52034,9 +52064,9 @@ exports.default = rootSaga;
 
 var _effects = require(470                 ); // 470 = redux-saga/effects
 
-var _persons = require(483        ); // 483 = ./persons
+var _persons = require(484        ); // 484 = ./persons
 
-var _person = require(487       ); // 487 = ./person
+var _person = require(488       ); // 488 = ./person
 
 var _marked = [rootSaga].map(regeneratorRuntime.mark);
 
@@ -52055,7 +52085,7 @@ function rootSaga() {
     }
   }, _marked[0], this);
 }
-}, 482, null, "rncontacts/app/sagas/index.js");
+}, 483, null, "rncontacts/app/sagas/index.js");
 __d(/* rncontacts/app/sagas/persons.js */function(global, require, module, exports) {Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -52064,15 +52094,15 @@ exports.watchRequestPersonList = watchRequestPersonList;
 
 var _effects = require(470                 ); // 470 = redux-saga/effects
 
-var _Urls = require(484                ); // 484 = ../constants/Urls
+var _Urls = require(485                ); // 485 = ../constants/Urls
 
 var _ActionTypes = require(474                       ); // 474 = ../constants/ActionTypes
 
 var types = babelHelpers.interopRequireWildcard(_ActionTypes);
 
-var _persons = require(485                 ); // 485 = ../actions/persons
+var _persons = require(486                 ); // 486 = ../actions/persons
 
-var _request = require(486               ); // 486 = ../utils/request
+var _request = require(487               ); // 487 = ../utils/request
 
 var _marked = [requestPersonList, watchRequestPersonList].map(regeneratorRuntime.mark);
 
@@ -52141,12 +52171,12 @@ function watchRequestPersonList() {
     }
   }, _marked[1], this);
 }
-}, 483, null, "rncontacts/app/sagas/persons.js");
+}, 484, null, "rncontacts/app/sagas/persons.js");
 __d(/* rncontacts/app/constants/Urls.js */function(global, require, module, exports) {Object.defineProperty(exports, "__esModule", {
   value: true
 });
 var PERSONS_URL = exports.PERSONS_URL = 'http://192.168.53.176:8000/persons';
-}, 484, null, "rncontacts/app/constants/Urls.js");
+}, 485, null, "rncontacts/app/constants/Urls.js");
 __d(/* qweqweqwe/app/actions/persons.js */function(global, require, module, exports) {Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -52175,7 +52205,7 @@ function receivePersonList(personList) {
     personList: personList
   };
 }
-}, 485, null, "qweqweqwe/app/actions/persons.js");
+}, 486, null, "qweqweqwe/app/actions/persons.js");
 __d(/* rncontacts/app/utils/request.js */function(global, require, module, exports) {Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -52206,7 +52236,7 @@ var request = exports.request = function request(url, method, body) {
     });
   });
 };
-}, 486, null, "rncontacts/app/utils/request.js");
+}, 487, null, "rncontacts/app/utils/request.js");
 __d(/* rncontacts/app/sagas/person.js */function(global, require, module, exports) {Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -52215,15 +52245,15 @@ exports.watchCreatePerson = watchCreatePerson;
 
 var _effects = require(470                 ); // 470 = redux-saga/effects
 
-var _Urls = require(484                ); // 484 = ../constants/Urls
+var _Urls = require(485                ); // 485 = ../constants/Urls
 
 var _ActionTypes = require(474                       ); // 474 = ../constants/ActionTypes
 
 var types = babelHelpers.interopRequireWildcard(_ActionTypes);
 
-var _person = require(488                ); // 488 = ../actions/person
+var _person = require(489                ); // 489 = ../actions/person
 
-var _request = require(486               ); // 486 = ../utils/request
+var _request = require(487               ); // 487 = ../utils/request
 
 var _marked = [createNewPerson, watchCreatePerson].map(regeneratorRuntime.mark);
 
@@ -52279,7 +52309,7 @@ function watchCreatePerson() {
     }
   }, _marked[1], this);
 }
-}, 487, null, "rncontacts/app/sagas/person.js");
+}, 488, null, "rncontacts/app/sagas/person.js");
 __d(/* rncontacts/app/actions/person.js */function(global, require, module, exports) {Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -52309,106 +52339,141 @@ function receiveNewPerson(person) {
     person: person
   };
 }
-}, 488, null, "rncontacts/app/actions/person.js");
+}, 489, null, "rncontacts/app/actions/person.js");
 __d(/* rncontacts/app/containers/app.js */function(global, require, module, exports) {Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.AppNav = undefined;
 
-var _reactNavigation = require(490               ); // 490 = react-navigation
+var _react = require(187    ); // 187 = react
 
-var _MainContainer = require(548                          ); // 548 = ../containers/MainContainer
+var _react2 = babelHelpers.interopRequireDefault(_react);
+
+var _reactRedux = require(417          ); // 417 = react-redux
+
+var _reactNavigation = require(491               ); // 491 = react-navigation
+
+var _MainContainer = require(549                          ); // 549 = ../containers/MainContainer
 
 var _MainContainer2 = babelHelpers.interopRequireDefault(_MainContainer);
 
-var _CreateContainer = require(550                            ); // 550 = ../containers/CreateContainer
+var _CreateContainer = require(551                            ); // 551 = ../containers/CreateContainer
 
 var _CreateContainer2 = babelHelpers.interopRequireDefault(_CreateContainer);
 
-var App = (0, _reactNavigation.StackNavigator)({
+var AppNav = exports.AppNav = (0, _reactNavigation.StackNavigator)({
   Main: { screen: _MainContainer2.default },
   Create: { screen: _CreateContainer2.default }
 });
 
-exports.default = App;
-}, 489, null, "rncontacts/app/containers/app.js");
+var App = function (_React$Component) {
+  babelHelpers.inherits(App, _React$Component);
+
+  function App() {
+    babelHelpers.classCallCheck(this, App);
+    return babelHelpers.possibleConstructorReturn(this, (App.__proto__ || Object.getPrototypeOf(App)).apply(this, arguments));
+  }
+
+  babelHelpers.createClass(App, [{
+    key: 'render',
+    value: function render() {
+      return _react2.default.createElement(AppNav, { navigation: (0, _reactNavigation.addNavigationHelpers)({
+          dispatch: this.props.dispatch,
+          state: this.props.state
+        }) });
+    }
+  }]);
+  return App;
+}(_react2.default.Component);
+
+var mapStateToProps = function mapStateToProps(state) {
+  return {
+    nav: state.nav
+  };
+};
+
+var AppWithNavState = (0, _reactRedux.connect)(mapStateToProps)(App);
+
+exports.default = AppWithNavState;
+}, 490, null, "rncontacts/app/containers/app.js");
 __d(/* react-navigation/src/react-navigation.js */function(global, require, module, exports) {
 
 module.exports = {
   get createNavigationContainer() {
-    return require(491                          ).default; // 491 = ./createNavigationContainer
+    return require(492                          ).default; // 492 = ./createNavigationContainer
   },
   get StateUtils() {
-    return require(495           ).default; // 495 = ./StateUtils
+    return require(496           ).default; // 496 = ./StateUtils
   },
   get addNavigationHelpers() {
-    return require(494                     ).default; // 494 = ./addNavigationHelpers
+    return require(495                     ).default; // 495 = ./addNavigationHelpers
   },
   get NavigationActions() {
-    return require(493                  ).default; // 493 = ./NavigationActions
+    return require(494                  ).default; // 494 = ./NavigationActions
   },
 
   get createNavigator() {
-    return require(496                           ).default; // 496 = ./navigators/createNavigator
+    return require(497                           ).default; // 497 = ./navigators/createNavigator
   },
   get StackNavigator() {
-    return require(497                          ).default; // 497 = ./navigators/StackNavigator
+    return require(498                          ).default; // 498 = ./navigators/StackNavigator
   },
   get TabNavigator() {
-    return require(524                        ).default; // 524 = ./navigators/TabNavigator
+    return require(525                        ).default; // 525 = ./navigators/TabNavigator
   },
   get DrawerNavigator() {
-    return require(539                           ).default; // 539 = ./navigators/DrawerNavigator
+    return require(540                           ).default; // 540 = ./navigators/DrawerNavigator
   },
 
   get StackRouter() {
-    return require(515                    ).default; // 515 = ./routers/StackRouter
+    return require(516                    ).default; // 516 = ./routers/StackRouter
   },
   get TabRouter() {
-    return require(525                  ).default; // 525 = ./routers/TabRouter
+    return require(526                  ).default; // 526 = ./routers/TabRouter
   },
 
   get Transitioner() {
-    return require(513                   ).default; // 513 = ./views/Transitioner
+    return require(514                   ).default; // 514 = ./views/Transitioner
   },
   get CardStack() {
-    return require(499                ).default; // 499 = ./views/CardStack
+    return require(500                ).default; // 500 = ./views/CardStack
   },
   get Card() {
-    return require(501           ).default; // 501 = ./views/Card
+    return require(502           ).default; // 502 = ./views/Card
   },
 
   get Header() {
-    return require(504             ).default; // 504 = ./views/Header
+    return require(505             ).default; // 505 = ./views/Header
   },
   get HeaderTitle() {
-    return require(505                  ).default; // 505 = ./views/HeaderTitle
+    return require(506                  ).default; // 506 = ./views/HeaderTitle
   },
   get HeaderBackButton() {
-    return require(506                       ).default; // 506 = ./views/HeaderBackButton
+    return require(507                       ).default; // 507 = ./views/HeaderBackButton
   },
 
   get DrawerView() {
-    return require(541                        ).default; // 541 = ./views/Drawer/DrawerView
+    return require(542                        ).default; // 542 = ./views/Drawer/DrawerView
   },
   get DrawerItems() {
-    return require(546                                  ).default; // 546 = ./views/Drawer/DrawerNavigatorItems
+    return require(547                                  ).default; // 547 = ./views/Drawer/DrawerNavigatorItems
   },
 
   get TabView() {
-    return require(526                      ).default; // 526 = ./views/TabView/TabView
+    return require(527                      ).default; // 527 = ./views/TabView/TabView
   },
   get TabBarTop() {
-    return require(536                        ).default; // 536 = ./views/TabView/TabBarTop
+    return require(537                        ).default; // 537 = ./views/TabView/TabBarTop
   },
   get TabBarBottom() {
-    return require(538                           ).default; // 538 = ./views/TabView/TabBarBottom
+    return require(539                           ).default; // 539 = ./views/TabView/TabBarBottom
   },
 
   get withNavigation() {
-    return require(547                     ).default; // 547 = ./views/withNavigation
+    return require(548                     ).default; // 548 = ./views/withNavigation
   }
 };
-}, 490, null, "react-navigation/src/react-navigation.js");
+}, 491, null, "react-navigation/src/react-navigation.js");
 __d(/* react-navigation/src/createNavigationContainer.js */function(global, require, module, exports) {Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -52422,13 +52487,13 @@ var _invariant = require(13                  ); // 13 = fbjs/lib/invariant
 
 var _invariant2 = babelHelpers.interopRequireDefault(_invariant);
 
-var _PlatformHelpers = require(492                ); // 492 = ./PlatformHelpers
+var _PlatformHelpers = require(493                ); // 493 = ./PlatformHelpers
 
-var _NavigationActions = require(493                  ); // 493 = ./NavigationActions
+var _NavigationActions = require(494                  ); // 494 = ./NavigationActions
 
 var _NavigationActions2 = babelHelpers.interopRequireDefault(_NavigationActions);
 
-var _addNavigationHelpers = require(494                     ); // 494 = ./addNavigationHelpers
+var _addNavigationHelpers = require(495                     ); // 495 = ./addNavigationHelpers
 
 var _addNavigationHelpers2 = babelHelpers.interopRequireDefault(_addNavigationHelpers);
 
@@ -52600,7 +52665,7 @@ function createNavigationContainer(Component, containerOptions) {
 
   return NavigationContainer;
 }
-}, 491, null, "react-navigation/src/createNavigationContainer.js");
+}, 492, null, "react-navigation/src/createNavigationContainer.js");
 __d(/* react-navigation/src/PlatformHelpers.native.js */function(global, require, module, exports) {Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -52610,7 +52675,7 @@ var _reactNative = require(12            ); // 12 = react-native
 
 exports.BackAndroid = _reactNative.BackAndroid;
 exports.Linking = _reactNative.Linking;
-}, 492, null, "react-navigation/src/PlatformHelpers.native.js");
+}, 493, null, "react-navigation/src/PlatformHelpers.native.js");
 __d(/* react-navigation/src/NavigationActions.js */function(global, require, module, exports) {Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -52680,7 +52745,7 @@ exports.default = {
 
   mapDeprecatedActionAndWarn: mapDeprecatedActionAndWarn
 };
-}, 493, null, "react-navigation/src/NavigationActions.js");
+}, 494, null, "react-navigation/src/NavigationActions.js");
 __d(/* react-navigation/src/addNavigationHelpers.js */function(global, require, module, exports) {Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -52709,10 +52774,10 @@ exports.default = function (navigation) {
   });
 };
 
-var _NavigationActions = require(493                  ); // 493 = ./NavigationActions
+var _NavigationActions = require(494                  ); // 494 = ./NavigationActions
 
 var _NavigationActions2 = babelHelpers.interopRequireDefault(_NavigationActions);
-}, 494, null, "react-navigation/src/addNavigationHelpers.js");
+}, 495, null, "react-navigation/src/addNavigationHelpers.js");
 __d(/* react-navigation/src/StateUtils.js */function(global, require, module, exports) {Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -52826,7 +52891,7 @@ var StateUtils = {
 };
 
 exports.default = StateUtils;
-}, 495, null, "react-navigation/src/StateUtils.js");
+}, 496, null, "react-navigation/src/StateUtils.js");
 __d(/* react-navigation/src/navigators/createNavigator.js */function(global, require, module, exports) {Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -52865,7 +52930,7 @@ var createNavigator = function createNavigator(router, routeConfigs, navigatorCo
 };
 
 exports.default = createNavigator;
-}, 496, null, "react-navigation/src/navigators/createNavigator.js");
+}, 497, null, "react-navigation/src/navigators/createNavigator.js");
 __d(/* react-navigation/src/navigators/StackNavigator.js */function(global, require, module, exports) {Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -52874,23 +52939,23 @@ var _react = require(187    ); // 187 = react
 
 var _react2 = babelHelpers.interopRequireDefault(_react);
 
-var _createNavigationContainer = require(491                           ); // 491 = ../createNavigationContainer
+var _createNavigationContainer = require(492                           ); // 492 = ../createNavigationContainer
 
 var _createNavigationContainer2 = babelHelpers.interopRequireDefault(_createNavigationContainer);
 
-var _createNavigator = require(496                ); // 496 = ./createNavigator
+var _createNavigator = require(497                ); // 497 = ./createNavigator
 
 var _createNavigator2 = babelHelpers.interopRequireDefault(_createNavigator);
 
-var _CardStackTransitioner = require(498                             ); // 498 = ../views/CardStackTransitioner
+var _CardStackTransitioner = require(499                             ); // 499 = ../views/CardStackTransitioner
 
 var _CardStackTransitioner2 = babelHelpers.interopRequireDefault(_CardStackTransitioner);
 
-var _StackRouter = require(515                     ); // 515 = ../routers/StackRouter
+var _StackRouter = require(516                     ); // 516 = ../routers/StackRouter
 
 var _StackRouter2 = babelHelpers.interopRequireDefault(_StackRouter);
 
-var _NavigatorTypes = require(523               ); // 523 = ./NavigatorTypes
+var _NavigatorTypes = require(524               ); // 524 = ./NavigatorTypes
 
 var _NavigatorTypes2 = babelHelpers.interopRequireDefault(_NavigatorTypes);
 
@@ -52929,7 +52994,7 @@ exports.default = function (routeConfigMap) {
 
   return (0, _createNavigationContainer2.default)(navigator, stackConfig.containerOptions);
 };
-}, 497, null, "react-navigation/src/navigators/StackNavigator.js");
+}, 498, null, "react-navigation/src/navigators/StackNavigator.js");
 __d(/* react-navigation/src/views/CardStackTransitioner.js */function(global, require, module, exports) {Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -52940,19 +53005,19 @@ var _react2 = babelHelpers.interopRequireDefault(_react);
 
 var _reactNative = require(12            ); // 12 = react-native
 
-var _CardStack = require(499          ); // 499 = ./CardStack
+var _CardStack = require(500          ); // 500 = ./CardStack
 
 var _CardStack2 = babelHelpers.interopRequireDefault(_CardStack);
 
-var _CardStackStyleInterpolator = require(512                           ); // 512 = ./CardStackStyleInterpolator
+var _CardStackStyleInterpolator = require(513                           ); // 513 = ./CardStackStyleInterpolator
 
 var _CardStackStyleInterpolator2 = babelHelpers.interopRequireDefault(_CardStackStyleInterpolator);
 
-var _Transitioner = require(513             ); // 513 = ./Transitioner
+var _Transitioner = require(514             ); // 514 = ./Transitioner
 
 var _Transitioner2 = babelHelpers.interopRequireDefault(_Transitioner);
 
-var _TransitionConfigs = require(511                  ); // 511 = ./TransitionConfigs
+var _TransitionConfigs = require(512                  ); // 512 = ./TransitionConfigs
 
 var _TransitionConfigs2 = babelHelpers.interopRequireDefault(_TransitionConfigs);
 
@@ -53022,7 +53087,7 @@ CardStackTransitioner.defaultProps = {
   mode: 'card'
 };
 exports.default = CardStackTransitioner;
-}, 498, null, "react-navigation/src/views/CardStackTransitioner.js");
+}, 499, null, "react-navigation/src/views/CardStackTransitioner.js");
 __d(/* react-navigation/src/views/CardStack.js */function(global, require, module, exports) {Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -53031,33 +53096,33 @@ var _react = require(187    ); // 187 = react
 
 var _react2 = babelHelpers.interopRequireDefault(_react);
 
-var _clamp = require(500    ); // 500 = clamp
+var _clamp = require(501    ); // 501 = clamp
 
 var _clamp2 = babelHelpers.interopRequireDefault(_clamp);
 
 var _reactNative = require(12            ); // 12 = react-native
 
-var _Card = require(501     ); // 501 = ./Card
+var _Card = require(502     ); // 502 = ./Card
 
 var _Card2 = babelHelpers.interopRequireDefault(_Card);
 
-var _Header = require(504       ); // 504 = ./Header
+var _Header = require(505       ); // 505 = ./Header
 
 var _Header2 = babelHelpers.interopRequireDefault(_Header);
 
-var _NavigationActions = require(493                   ); // 493 = ../NavigationActions
+var _NavigationActions = require(494                   ); // 494 = ../NavigationActions
 
 var _NavigationActions2 = babelHelpers.interopRequireDefault(_NavigationActions);
 
-var _addNavigationHelpers = require(494                      ); // 494 = ../addNavigationHelpers
+var _addNavigationHelpers = require(495                      ); // 495 = ../addNavigationHelpers
 
 var _addNavigationHelpers2 = babelHelpers.interopRequireDefault(_addNavigationHelpers);
 
-var _SceneView = require(510          ); // 510 = ./SceneView
+var _SceneView = require(511          ); // 511 = ./SceneView
 
 var _SceneView2 = babelHelpers.interopRequireDefault(_SceneView);
 
-var _TransitionConfigs = require(511                  ); // 511 = ./TransitionConfigs
+var _TransitionConfigs = require(512                  ); // 512 = ./TransitionConfigs
 
 var _TransitionConfigs2 = babelHelpers.interopRequireDefault(_TransitionConfigs);
 
@@ -53398,13 +53463,13 @@ var styles = _reactNative.StyleSheet.create({
 });
 
 exports.default = CardStack;
-}, 499, null, "react-navigation/src/views/CardStack.js");
+}, 500, null, "react-navigation/src/views/CardStack.js");
 __d(/* clamp/index.js */function(global, require, module, exports) {module.exports = clamp;
 
 function clamp(value, min, max) {
   return min < max ? value < min ? min : value > max ? max : value : value < max ? max : value > min ? min : value;
 }
-}, 500, null, "clamp/index.js");
+}, 501, null, "clamp/index.js");
 __d(/* react-navigation/src/views/Card.js */function(global, require, module, exports) {Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -53415,7 +53480,7 @@ var _react2 = babelHelpers.interopRequireDefault(_react);
 
 var _reactNative = require(12            ); // 12 = react-native
 
-var _PointerEventsContainer = require(502                       ); // 502 = ./PointerEventsContainer
+var _PointerEventsContainer = require(503                       ); // 503 = ./PointerEventsContainer
 
 var _PointerEventsContainer2 = babelHelpers.interopRequireDefault(_PointerEventsContainer);
 
@@ -53467,7 +53532,7 @@ var styles = _reactNative.StyleSheet.create({
 Card = (0, _PointerEventsContainer2.default)(Card);
 
 exports.default = Card;
-}, 501, null, "react-navigation/src/views/Card.js");
+}, 502, null, "react-navigation/src/views/Card.js");
 __d(/* react-navigation/src/views/PointerEventsContainer.js */function(global, require, module, exports) {Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -53481,7 +53546,7 @@ var _invariant = require(13                  ); // 13 = fbjs/lib/invariant
 
 var _invariant2 = babelHelpers.interopRequireDefault(_invariant);
 
-var _AnimatedValueSubscription = require(503                          ); // 503 = ./AnimatedValueSubscription
+var _AnimatedValueSubscription = require(504                          ); // 504 = ./AnimatedValueSubscription
 
 var _AnimatedValueSubscription2 = babelHelpers.interopRequireDefault(_AnimatedValueSubscription);
 
@@ -53581,7 +53646,7 @@ function create(Component) {
 
   return Container;
 }
-}, 502, null, "react-navigation/src/views/PointerEventsContainer.js");
+}, 503, null, "react-navigation/src/views/PointerEventsContainer.js");
 __d(/* react-navigation/src/views/AnimatedValueSubscription.js */function(global, require, module, exports) {Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -53606,7 +53671,7 @@ var AnimatedValueSubscription = function () {
 }();
 
 exports.default = AnimatedValueSubscription;
-}, 503, null, "react-navigation/src/views/AnimatedValueSubscription.js");
+}, 504, null, "react-navigation/src/views/AnimatedValueSubscription.js");
 __d(/* react-navigation/src/views/Header.js */function(global, require, module, exports) {
 
 'no babel-plugin-flow-react-proptypes';
@@ -53621,15 +53686,15 @@ var _react2 = babelHelpers.interopRequireDefault(_react);
 
 var _reactNative = require(12            ); // 12 = react-native
 
-var _HeaderTitle = require(505            ); // 505 = ./HeaderTitle
+var _HeaderTitle = require(506            ); // 506 = ./HeaderTitle
 
 var _HeaderTitle2 = babelHelpers.interopRequireDefault(_HeaderTitle);
 
-var _HeaderBackButton = require(506                 ); // 506 = ./HeaderBackButton
+var _HeaderBackButton = require(507                 ); // 507 = ./HeaderBackButton
 
 var _HeaderBackButton2 = babelHelpers.interopRequireDefault(_HeaderBackButton);
 
-var _HeaderStyleInterpolator = require(509                        ); // 509 = ./HeaderStyleInterpolator
+var _HeaderStyleInterpolator = require(510                        ); // 510 = ./HeaderStyleInterpolator
 
 var _HeaderStyleInterpolator2 = babelHelpers.interopRequireDefault(_HeaderStyleInterpolator);
 
@@ -53927,7 +53992,7 @@ var styles = _reactNative.StyleSheet.create({
 });
 
 exports.default = Header;
-}, 504, null, "react-navigation/src/views/Header.js");
+}, 505, null, "react-navigation/src/views/Header.js");
 __d(/* react-navigation/src/views/HeaderTitle.js */function(global, require, module, exports) {Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -53960,7 +54025,7 @@ var styles = _reactNative.StyleSheet.create({
 });
 
 exports.default = HeaderTitle;
-}, 505, null, "react-navigation/src/views/HeaderTitle.js");
+}, 506, null, "react-navigation/src/views/HeaderTitle.js");
 __d(/* react-navigation/src/views/HeaderBackButton.js */function(global, require, module, exports) {Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -53971,7 +54036,7 @@ var _react2 = babelHelpers.interopRequireDefault(_react);
 
 var _reactNative = require(12            ); // 12 = react-native
 
-var _TouchableItem = require(507              ); // 507 = ./TouchableItem
+var _TouchableItem = require(508              ); // 508 = ./TouchableItem
 
 var _TouchableItem2 = babelHelpers.interopRequireDefault(_TouchableItem);
 
@@ -54015,7 +54080,7 @@ var HeaderBackButton = function (_React$PureComponent) {
 
       var backButtonTitle = renderTruncated ? truncatedTitle : title;
 
-      var asset = require(508                     ); // 508 = ./assets/back-icon.png
+      var asset = require(509                     ); // 509 = ./assets/back-icon.png
 
       return _react2.default.createElement(
         _TouchableItem2.default,
@@ -54092,7 +54157,7 @@ var styles = _reactNative.StyleSheet.create({
 });
 
 exports.default = HeaderBackButton;
-}, 506, null, "react-navigation/src/views/HeaderBackButton.js");
+}, 507, null, "react-navigation/src/views/HeaderBackButton.js");
 __d(/* react-navigation/src/views/TouchableItem.js */function(global, require, module, exports) {Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -54150,9 +54215,9 @@ TouchableItem.defaultProps = {
   pressColor: 'rgba(0, 0, 0, .32)'
 };
 exports.default = TouchableItem;
-}, 507, null, "react-navigation/src/views/TouchableItem.js");
+}, 508, null, "react-navigation/src/views/TouchableItem.js");
 __d(/* react-navigation/src/views/assets/back-icon.png */function(global, require, module, exports) {module.exports = require(277                                         ).registerAsset({"__packager_asset":true,"httpServerLocation":"/assets/node_modules/react-navigation/src/views/assets","width":24,"height":24,"scales":[1,1.5,2,3,4],"hash":"a364dc7a784101f7c8f6791c7b4514ce","name":"back-icon","type":"png"}); // 277 = react-native/Libraries/Image/AssetRegistry
-}, 508, null, "react-navigation/src/views/assets/back-icon.png");
+}, 509, null, "react-navigation/src/views/assets/back-icon.png");
 __d(/* react-navigation/src/views/HeaderStyleInterpolator.js */function(global, require, module, exports) {Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -54209,7 +54274,7 @@ exports.default = {
   forCenter: forCenter,
   forRight: forRight
 };
-}, 509, null, "react-navigation/src/views/HeaderStyleInterpolator.js");
+}, 510, null, "react-navigation/src/views/HeaderStyleInterpolator.js");
 __d(/* react-navigation/src/views/SceneView.js */function(global, require, module, exports) {Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -54256,14 +54321,14 @@ SceneView.childContextTypes = {
   navigation: _propTypes2.default.object.isRequired
 };
 exports.default = SceneView;
-}, 510, null, "react-navigation/src/views/SceneView.js");
+}, 511, null, "react-navigation/src/views/SceneView.js");
 __d(/* react-navigation/src/views/TransitionConfigs.js */function(global, require, module, exports) {Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
 var _reactNative = require(12            ); // 12 = react-native
 
-var _CardStackStyleInterpolator = require(512                           ); // 512 = ./CardStackStyleInterpolator
+var _CardStackStyleInterpolator = require(513                           ); // 513 = ./CardStackStyleInterpolator
 
 var _CardStackStyleInterpolator2 = babelHelpers.interopRequireDefault(_CardStackStyleInterpolator);
 
@@ -54327,7 +54392,7 @@ exports.default = {
   defaultTransitionConfig: defaultTransitionConfig,
   getTransitionConfig: getTransitionConfig
 };
-}, 511, null, "react-navigation/src/views/TransitionConfigs.js");
+}, 512, null, "react-navigation/src/views/TransitionConfigs.js");
 __d(/* react-navigation/src/views/CardStackStyleInterpolator.js */function(global, require, module, exports) {Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -54452,7 +54517,7 @@ exports.default = {
   forFadeFromBottomAndroid: forFadeFromBottomAndroid,
   canUseNativeDriver: canUseNativeDriver
 };
-}, 512, null, "react-navigation/src/views/CardStackStyleInterpolator.js");
+}, 513, null, "react-navigation/src/views/CardStackStyleInterpolator.js");
 __d(/* react-navigation/src/views/Transitioner.js */function(global, require, module, exports) {Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -54467,11 +54532,11 @@ var _invariant = require(13                  ); // 13 = fbjs/lib/invariant
 
 var _invariant2 = babelHelpers.interopRequireDefault(_invariant);
 
-var _ScenesReducer = require(514              ); // 514 = ./ScenesReducer
+var _ScenesReducer = require(515              ); // 515 = ./ScenesReducer
 
 var _ScenesReducer2 = babelHelpers.interopRequireDefault(_ScenesReducer);
 
-var _TransitionConfigs = require(511                  ); // 511 = ./TransitionConfigs
+var _TransitionConfigs = require(512                  ); // 512 = ./TransitionConfigs
 
 var _TransitionConfigs2 = babelHelpers.interopRequireDefault(_TransitionConfigs);
 
@@ -54683,7 +54748,7 @@ var styles = _reactNative.StyleSheet.create({
 });
 
 exports.default = Transitioner;
-}, 513, null, "react-navigation/src/views/Transitioner.js");
+}, 514, null, "react-navigation/src/views/Transitioner.js");
 __d(/* react-navigation/src/views/ScenesReducer.js */function(global, require, module, exports) {Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -54835,36 +54900,36 @@ function ScenesReducer(scenes, nextState, prevState) {
 
   return scenes;
 }
-}, 514, null, "react-navigation/src/views/ScenesReducer.js");
+}, 515, null, "react-navigation/src/views/ScenesReducer.js");
 __d(/* react-navigation/src/routers/StackRouter.js */function(global, require, module, exports) {Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _pathToRegexp = require(516             ); // 516 = path-to-regexp
+var _pathToRegexp = require(517             ); // 517 = path-to-regexp
 
 var _pathToRegexp2 = babelHelpers.interopRequireDefault(_pathToRegexp);
 
-var _NavigationActions = require(493                   ); // 493 = ../NavigationActions
+var _NavigationActions = require(494                   ); // 494 = ../NavigationActions
 
 var _NavigationActions2 = babelHelpers.interopRequireDefault(_NavigationActions);
 
-var _createConfigGetter = require(518                   ); // 518 = ./createConfigGetter
+var _createConfigGetter = require(519                   ); // 519 = ./createConfigGetter
 
 var _createConfigGetter2 = babelHelpers.interopRequireDefault(_createConfigGetter);
 
-var _getScreenForRouteName = require(519                      ); // 519 = ./getScreenForRouteName
+var _getScreenForRouteName = require(520                      ); // 520 = ./getScreenForRouteName
 
 var _getScreenForRouteName2 = babelHelpers.interopRequireDefault(_getScreenForRouteName);
 
-var _StateUtils = require(495            ); // 495 = ../StateUtils
+var _StateUtils = require(496            ); // 496 = ../StateUtils
 
 var _StateUtils2 = babelHelpers.interopRequireDefault(_StateUtils);
 
-var _validateRouteConfigMap = require(521                       ); // 521 = ./validateRouteConfigMap
+var _validateRouteConfigMap = require(522                       ); // 522 = ./validateRouteConfigMap
 
 var _validateRouteConfigMap2 = babelHelpers.interopRequireDefault(_validateRouteConfigMap);
 
-var _getScreenConfigDeprecated = require(522                          ); // 522 = ./getScreenConfigDeprecated
+var _getScreenConfigDeprecated = require(523                          ); // 523 = ./getScreenConfigDeprecated
 
 var _getScreenConfigDeprecated2 = babelHelpers.interopRequireDefault(_getScreenConfigDeprecated);
 
@@ -55190,8 +55255,8 @@ exports.default = function (routeConfigs) {
     getScreenConfig: _getScreenConfigDeprecated2.default
   };
 };
-}, 515, null, "react-navigation/src/routers/StackRouter.js");
-__d(/* path-to-regexp/index.js */function(global, require, module, exports) {var isarray = require(517      ); // 517 = isarray
+}, 516, null, "react-navigation/src/routers/StackRouter.js");
+__d(/* path-to-regexp/index.js */function(global, require, module, exports) {var isarray = require(518      ); // 518 = isarray
 
 module.exports = pathToRegexp;
 module.exports.parse = parse;
@@ -55486,11 +55551,11 @@ function pathToRegexp(path, keys, options) {
 
   return stringToRegexp(path, keys, options);
 }
-}, 516, null, "path-to-regexp/index.js");
+}, 517, null, "path-to-regexp/index.js");
 __d(/* isarray/index.js */function(global, require, module, exports) {module.exports = Array.isArray || function (arr) {
   return Object.prototype.toString.call(arr) == '[object Array]';
 };
-}, 517, null, "isarray/index.js");
+}, 518, null, "isarray/index.js");
 __d(/* react-navigation/src/routers/createConfigGetter.js */function(global, require, module, exports) {Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -55499,15 +55564,15 @@ var _invariant = require(13                  ); // 13 = fbjs/lib/invariant
 
 var _invariant2 = babelHelpers.interopRequireDefault(_invariant);
 
-var _getScreenForRouteName = require(519                      ); // 519 = ./getScreenForRouteName
+var _getScreenForRouteName = require(520                      ); // 520 = ./getScreenForRouteName
 
 var _getScreenForRouteName2 = babelHelpers.interopRequireDefault(_getScreenForRouteName);
 
-var _addNavigationHelpers = require(494                      ); // 494 = ../addNavigationHelpers
+var _addNavigationHelpers = require(495                      ); // 495 = ../addNavigationHelpers
 
 var _addNavigationHelpers2 = babelHelpers.interopRequireDefault(_addNavigationHelpers);
 
-var _validateScreenOptions = require(520                      ); // 520 = ./validateScreenOptions
+var _validateScreenOptions = require(521                      ); // 521 = ./validateScreenOptions
 
 var _validateScreenOptions2 = babelHelpers.interopRequireDefault(_validateScreenOptions);
 
@@ -55566,7 +55631,7 @@ exports.default = function (routeConfigs, navigatorScreenConfig) {
     return outputConfig;
   };
 };
-}, 518, null, "react-navigation/src/routers/createConfigGetter.js");
+}, 519, null, "react-navigation/src/routers/createConfigGetter.js");
 __d(/* react-navigation/src/routers/getScreenForRouteName.js */function(global, require, module, exports) {Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -55595,7 +55660,7 @@ function getScreenForRouteName(routeConfigs, routeName) {
 
   (0, _invariant2.default)(false, 'Route ' + routeName + ' must define a screen or a getScreen.');
 }
-}, 519, null, "react-navigation/src/routers/getScreenForRouteName.js");
+}, 520, null, "react-navigation/src/routers/getScreenForRouteName.js");
 __d(/* react-navigation/src/routers/validateScreenOptions.js */function(global, require, module, exports) {Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -55629,7 +55694,7 @@ exports.default = function (screenOptions, route) {
     })), ['}']).join('\n'));
   }
 };
-}, 520, null, "react-navigation/src/routers/validateScreenOptions.js");
+}, 521, null, "react-navigation/src/routers/validateScreenOptions.js");
 __d(/* react-navigation/src/routers/validateRouteConfigMap.js */function(global, require, module, exports) {Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -55658,7 +55723,7 @@ function validateRouteConfigMap(routeConfigs) {
 }
 
 exports.default = validateRouteConfigMap;
-}, 521, null, "react-navigation/src/routers/validateRouteConfigMap.js");
+}, 522, null, "react-navigation/src/routers/validateRouteConfigMap.js");
 __d(/* react-navigation/src/routers/getScreenConfigDeprecated.js */function(global, require, module, exports) {Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -55670,7 +55735,7 @@ var _invariant2 = babelHelpers.interopRequireDefault(_invariant);
 exports.default = function () {
   return (0, _invariant2.default)(false, '`getScreenConfig` has been replaced with `getScreenOptions`');
 };
-}, 522, null, "react-navigation/src/routers/getScreenConfigDeprecated.js");
+}, 523, null, "react-navigation/src/routers/getScreenConfigDeprecated.js");
 __d(/* react-navigation/src/navigators/NavigatorTypes.js */function(global, require, module, exports) {Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -55685,7 +55750,7 @@ exports.default = {
   TABS: TABS,
   DRAWER: DRAWER
 };
-}, 523, null, "react-navigation/src/navigators/NavigatorTypes.js");
+}, 524, null, "react-navigation/src/navigators/NavigatorTypes.js");
 __d(/* react-navigation/src/navigators/TabNavigator.js */function(global, require, module, exports) {Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -55696,31 +55761,31 @@ var _react2 = babelHelpers.interopRequireDefault(_react);
 
 var _reactNative = require(12            ); // 12 = react-native
 
-var _createNavigator = require(496                ); // 496 = ./createNavigator
+var _createNavigator = require(497                ); // 497 = ./createNavigator
 
 var _createNavigator2 = babelHelpers.interopRequireDefault(_createNavigator);
 
-var _createNavigationContainer = require(491                           ); // 491 = ../createNavigationContainer
+var _createNavigationContainer = require(492                           ); // 492 = ../createNavigationContainer
 
 var _createNavigationContainer2 = babelHelpers.interopRequireDefault(_createNavigationContainer);
 
-var _TabRouter = require(525                   ); // 525 = ../routers/TabRouter
+var _TabRouter = require(526                   ); // 526 = ../routers/TabRouter
 
 var _TabRouter2 = babelHelpers.interopRequireDefault(_TabRouter);
 
-var _TabView = require(526                       ); // 526 = ../views/TabView/TabView
+var _TabView = require(527                       ); // 527 = ../views/TabView/TabView
 
 var _TabView2 = babelHelpers.interopRequireDefault(_TabView);
 
-var _TabBarTop = require(536                         ); // 536 = ../views/TabView/TabBarTop
+var _TabBarTop = require(537                         ); // 537 = ../views/TabView/TabBarTop
 
 var _TabBarTop2 = babelHelpers.interopRequireDefault(_TabBarTop);
 
-var _TabBarBottom = require(538                            ); // 538 = ../views/TabView/TabBarBottom
+var _TabBarBottom = require(539                            ); // 539 = ../views/TabView/TabBarBottom
 
 var _TabBarBottom2 = babelHelpers.interopRequireDefault(_TabBarBottom);
 
-var _NavigatorTypes = require(523               ); // 523 = ./NavigatorTypes
+var _NavigatorTypes = require(524               ); // 524 = ./NavigatorTypes
 
 var _NavigatorTypes2 = babelHelpers.interopRequireDefault(_NavigatorTypes);
 
@@ -55777,7 +55842,7 @@ TabNavigator.Presets = {
 };
 
 exports.default = TabNavigator;
-}, 524, null, "react-navigation/src/navigators/TabNavigator.js");
+}, 525, null, "react-navigation/src/navigators/TabNavigator.js");
 __d(/* react-navigation/src/routers/TabRouter.js */function(global, require, module, exports) {Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -55786,23 +55851,23 @@ var _invariant = require(13                  ); // 13 = fbjs/lib/invariant
 
 var _invariant2 = babelHelpers.interopRequireDefault(_invariant);
 
-var _getScreenForRouteName = require(519                      ); // 519 = ./getScreenForRouteName
+var _getScreenForRouteName = require(520                      ); // 520 = ./getScreenForRouteName
 
 var _getScreenForRouteName2 = babelHelpers.interopRequireDefault(_getScreenForRouteName);
 
-var _createConfigGetter = require(518                   ); // 518 = ./createConfigGetter
+var _createConfigGetter = require(519                   ); // 519 = ./createConfigGetter
 
 var _createConfigGetter2 = babelHelpers.interopRequireDefault(_createConfigGetter);
 
-var _NavigationActions = require(493                   ); // 493 = ../NavigationActions
+var _NavigationActions = require(494                   ); // 494 = ../NavigationActions
 
 var _NavigationActions2 = babelHelpers.interopRequireDefault(_NavigationActions);
 
-var _validateRouteConfigMap = require(521                       ); // 521 = ./validateRouteConfigMap
+var _validateRouteConfigMap = require(522                       ); // 522 = ./validateRouteConfigMap
 
 var _validateRouteConfigMap2 = babelHelpers.interopRequireDefault(_validateRouteConfigMap);
 
-var _getScreenConfigDeprecated = require(522                          ); // 522 = ./getScreenConfigDeprecated
+var _getScreenConfigDeprecated = require(523                          ); // 523 = ./getScreenConfigDeprecated
 
 var _getScreenConfigDeprecated2 = babelHelpers.interopRequireDefault(_getScreenConfigDeprecated);
 
@@ -56044,7 +56109,7 @@ exports.default = function (routeConfigs) {
     getScreenConfig: _getScreenConfigDeprecated2.default
   };
 };
-}, 525, null, "react-navigation/src/routers/TabRouter.js");
+}, 526, null, "react-navigation/src/routers/TabRouter.js");
 __d(/* react-navigation/src/views/TabView/TabView.js */function(global, require, module, exports) {Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -56055,13 +56120,13 @@ var _react2 = babelHelpers.interopRequireDefault(_react);
 
 var _reactNative = require(12            ); // 12 = react-native
 
-var _reactNativeTabView = require(527                    ); // 527 = react-native-tab-view
+var _reactNativeTabView = require(528                    ); // 528 = react-native-tab-view
 
-var _SceneView = require(510           ); // 510 = ../SceneView
+var _SceneView = require(511           ); // 511 = ../SceneView
 
 var _SceneView2 = babelHelpers.interopRequireDefault(_SceneView);
 
-var _withCachedChildNavigation = require(535                              ); // 535 = ../../withCachedChildNavigation
+var _withCachedChildNavigation = require(536                              ); // 536 = ../../withCachedChildNavigation
 
 var _withCachedChildNavigation2 = babelHelpers.interopRequireDefault(_withCachedChildNavigation);
 
@@ -56205,27 +56270,27 @@ var styles = _reactNative.StyleSheet.create({
     flex: 1
   }
 });
-}, 526, null, "react-navigation/src/views/TabView/TabView.js");
+}, 527, null, "react-navigation/src/views/TabView/TabView.js");
 __d(/* react-native-tab-view/src/index.js */function(global, require, module, exports) {
 
 module.exports = {
   get TabViewAnimated() {
-    return require(528                ).default; // 528 = ./TabViewAnimated
+    return require(529                ).default; // 529 = ./TabViewAnimated
   },
   get TabViewPagerPan() {
-    return require(532                ).default; // 532 = ./TabViewPagerPan
+    return require(533                ).default; // 533 = ./TabViewPagerPan
   },
   get TabViewPagerScroll() {
-    return require(531                   ).default; // 531 = ./TabViewPagerScroll
+    return require(532                   ).default; // 532 = ./TabViewPagerScroll
   },
   get TabViewPagerAndroid() {
-    return require(530                    ).default; // 530 = ./TabViewPagerAndroid
+    return require(531                    ).default; // 531 = ./TabViewPagerAndroid
   },
   get TabBar() {
-    return require(533       ).default; // 533 = ./TabBar
+    return require(534       ).default; // 534 = ./TabBar
   }
 };
-}, 527, null, "react-native-tab-view/src/index.js");
+}, 528, null, "react-native-tab-view/src/index.js");
 __d(/* react-native-tab-view/src/TabViewAnimated.js */function(global, require, module, exports) {Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -56240,19 +56305,19 @@ var _propTypes2 = babelHelpers.interopRequireDefault(_propTypes);
 
 var _reactNative = require(12            ); // 12 = react-native
 
-var _TabViewPropTypes = require(529                 ); // 529 = ./TabViewPropTypes
+var _TabViewPropTypes = require(530                 ); // 530 = ./TabViewPropTypes
 
 var TabViewPager = void 0;
 
 switch (_reactNative.Platform.OS) {
   case 'android':
-    TabViewPager = require(530                    ).default; // 530 = ./TabViewPagerAndroid
+    TabViewPager = require(531                    ).default; // 531 = ./TabViewPagerAndroid
     break;
   case 'ios':
-    TabViewPager = require(531                   ).default; // 531 = ./TabViewPagerScroll
+    TabViewPager = require(532                   ).default; // 532 = ./TabViewPagerScroll
     break;
   default:
-    TabViewPager = require(532                ).default; // 532 = ./TabViewPagerPan
+    TabViewPager = require(533                ).default; // 533 = ./TabViewPagerPan
     break;
 }
 
@@ -56507,7 +56572,7 @@ var styles = _reactNative.StyleSheet.create({
     overflow: 'hidden'
   }
 });
-}, 528, null, "react-native-tab-view/src/TabViewAnimated.js");
+}, 529, null, "react-native-tab-view/src/TabViewAnimated.js");
 __d(/* react-native-tab-view/src/TabViewPropTypes.js */function(global, require, module, exports) {Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -56541,7 +56606,7 @@ var SceneRendererPropType = exports.SceneRendererPropType = {
   getLastPosition: _propTypes2.default.func.isRequired,
   subscribe: _propTypes2.default.func.isRequired
 };
-}, 529, null, "react-native-tab-view/src/TabViewPropTypes.js");
+}, 530, null, "react-native-tab-view/src/TabViewPropTypes.js");
 __d(/* react-native-tab-view/src/TabViewPagerAndroid.js */function(global, require, module, exports) {Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -56556,7 +56621,7 @@ var _propTypes2 = babelHelpers.interopRequireDefault(_propTypes);
 
 var _reactNative = require(12            ); // 12 = react-native
 
-var _TabViewPropTypes = require(529                 ); // 529 = ./TabViewPropTypes
+var _TabViewPropTypes = require(530                 ); // 530 = ./TabViewPropTypes
 
 var TabViewPagerAndroid = function (_PureComponent) {
   babelHelpers.inherits(TabViewPagerAndroid, _PureComponent);
@@ -56701,7 +56766,7 @@ var styles = _reactNative.StyleSheet.create({
     overflow: 'hidden'
   }
 });
-}, 530, null, "react-native-tab-view/src/TabViewPagerAndroid.js");
+}, 531, null, "react-native-tab-view/src/TabViewPagerAndroid.js");
 __d(/* react-native-tab-view/src/TabViewPagerScroll.js */function(global, require, module, exports) {Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -56716,7 +56781,7 @@ var _propTypes2 = babelHelpers.interopRequireDefault(_propTypes);
 
 var _reactNative = require(12            ); // 12 = react-native
 
-var _TabViewPropTypes = require(529                 ); // 529 = ./TabViewPropTypes
+var _TabViewPropTypes = require(530                 ); // 530 = ./TabViewPropTypes
 
 var TabViewPagerScroll = function (_PureComponent) {
   babelHelpers.inherits(TabViewPagerScroll, _PureComponent);
@@ -56855,7 +56920,7 @@ var styles = _reactNative.StyleSheet.create({
     overflow: 'hidden'
   }
 });
-}, 531, null, "react-native-tab-view/src/TabViewPagerScroll.js");
+}, 532, null, "react-native-tab-view/src/TabViewPagerScroll.js");
 __d(/* react-native-tab-view/src/TabViewPagerPan.js */function(global, require, module, exports) {Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -56870,7 +56935,7 @@ var _propTypes2 = babelHelpers.interopRequireDefault(_propTypes);
 
 var _reactNative = require(12            ); // 12 = react-native
 
-var _TabViewPropTypes = require(529                 ); // 529 = ./TabViewPropTypes
+var _TabViewPropTypes = require(530                 ); // 530 = ./TabViewPropTypes
 
 var DEAD_ZONE = 12;
 
@@ -57094,7 +57159,7 @@ var styles = _reactNative.StyleSheet.create({
     alignItems: 'stretch'
   }
 });
-}, 532, null, "react-native-tab-view/src/TabViewPagerPan.js");
+}, 533, null, "react-native-tab-view/src/TabViewPagerPan.js");
 __d(/* react-native-tab-view/src/TabBar.js */function(global, require, module, exports) {Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -57109,11 +57174,11 @@ var _propTypes2 = babelHelpers.interopRequireDefault(_propTypes);
 
 var _reactNative = require(12            ); // 12 = react-native
 
-var _TouchableItem = require(534              ); // 534 = ./TouchableItem
+var _TouchableItem = require(535              ); // 535 = ./TouchableItem
 
 var _TouchableItem2 = babelHelpers.interopRequireDefault(_TouchableItem);
 
-var _TabViewPropTypes = require(529                 ); // 529 = ./TabViewPropTypes
+var _TabViewPropTypes = require(530                 ); // 530 = ./TabViewPropTypes
 
 var TabBar = function (_PureComponent) {
   babelHelpers.inherits(TabBar, _PureComponent);
@@ -57598,7 +57663,7 @@ var styles = _reactNative.StyleSheet.create({
     height: 2
   }
 });
-}, 533, null, "react-native-tab-view/src/TabBar.js");
+}, 534, null, "react-native-tab-view/src/TabBar.js");
 __d(/* react-native-tab-view/src/TouchableItem.js */function(global, require, module, exports) {Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -57670,7 +57735,7 @@ TouchableItem.defaultProps = {
   pressColor: 'rgba(255, 255, 255, .4)'
 };
 exports.default = TouchableItem;
-}, 534, null, "react-native-tab-view/src/TouchableItem.js");
+}, 535, null, "react-native-tab-view/src/TouchableItem.js");
 __d(/* react-navigation/src/withCachedChildNavigation.js */function(global, require, module, exports) {Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -57680,7 +57745,7 @@ var _react = require(187    ); // 187 = react
 
 var _react2 = babelHelpers.interopRequireDefault(_react);
 
-var _addNavigationHelpers = require(494                     ); // 494 = ./addNavigationHelpers
+var _addNavigationHelpers = require(495                     ); // 495 = ./addNavigationHelpers
 
 var _addNavigationHelpers2 = babelHelpers.interopRequireDefault(_addNavigationHelpers);
 
@@ -57738,7 +57803,7 @@ function withCachedChildNavigation(Comp) {
     return _class;
   }(_react.PureComponent), _class.displayName = 'withCachedChildNavigation(' + (Comp.displayName || Comp.name) + ')', _temp2;
 }
-}, 535, null, "react-navigation/src/withCachedChildNavigation.js");
+}, 536, null, "react-navigation/src/withCachedChildNavigation.js");
 __d(/* react-navigation/src/views/TabView/TabBarTop.js */function(global, require, module, exports) {Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -57749,9 +57814,9 @@ var _react2 = babelHelpers.interopRequireDefault(_react);
 
 var _reactNative = require(12            ); // 12 = react-native
 
-var _reactNativeTabView = require(527                    ); // 527 = react-native-tab-view
+var _reactNativeTabView = require(528                    ); // 528 = react-native-tab-view
 
-var _TabBarIcon = require(537           ); // 537 = ./TabBarIcon
+var _TabBarIcon = require(538           ); // 538 = ./TabBarIcon
 
 var _TabBarIcon2 = babelHelpers.interopRequireDefault(_TabBarIcon);
 
@@ -57870,7 +57935,7 @@ var styles = _reactNative.StyleSheet.create({
     backgroundColor: 'transparent'
   }
 });
-}, 536, null, "react-navigation/src/views/TabView/TabBarTop.js");
+}, 537, null, "react-navigation/src/views/TabView/TabBarTop.js");
 __d(/* react-navigation/src/views/TabView/TabBarIcon.js */function(global, require, module, exports) {Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -57962,7 +58027,7 @@ var styles = _reactNative.StyleSheet.create({
     justifyContent: 'center'
   }
 });
-}, 537, null, "react-navigation/src/views/TabView/TabBarIcon.js");
+}, 538, null, "react-navigation/src/views/TabView/TabBarIcon.js");
 __d(/* react-navigation/src/views/TabView/TabBarBottom.js */function(global, require, module, exports) {Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -57973,7 +58038,7 @@ var _react2 = babelHelpers.interopRequireDefault(_react);
 
 var _reactNative = require(12            ); // 12 = react-native
 
-var _TabBarIcon = require(537           ); // 537 = ./TabBarIcon
+var _TabBarIcon = require(538           ); // 538 = ./TabBarIcon
 
 var _TabBarIcon2 = babelHelpers.interopRequireDefault(_TabBarIcon);
 
@@ -58142,7 +58207,7 @@ var styles = _reactNative.StyleSheet.create({
     backgroundColor: 'transparent'
   }
 });
-}, 538, null, "react-navigation/src/views/TabView/TabBarBottom.js");
+}, 539, null, "react-navigation/src/views/TabView/TabBarBottom.js");
 __d(/* react-navigation/src/navigators/DrawerNavigator.js */function(global, require, module, exports) {Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -58153,31 +58218,31 @@ var _react2 = babelHelpers.interopRequireDefault(_react);
 
 var _reactNative = require(12            ); // 12 = react-native
 
-var _createNavigator = require(496                ); // 496 = ./createNavigator
+var _createNavigator = require(497                ); // 497 = ./createNavigator
 
 var _createNavigator2 = babelHelpers.interopRequireDefault(_createNavigator);
 
-var _createNavigationContainer = require(491                           ); // 491 = ../createNavigationContainer
+var _createNavigationContainer = require(492                           ); // 492 = ../createNavigationContainer
 
 var _createNavigationContainer2 = babelHelpers.interopRequireDefault(_createNavigationContainer);
 
-var _TabRouter = require(525                   ); // 525 = ../routers/TabRouter
+var _TabRouter = require(526                   ); // 526 = ../routers/TabRouter
 
 var _TabRouter2 = babelHelpers.interopRequireDefault(_TabRouter);
 
-var _DrawerScreen = require(540                           ); // 540 = ../views/Drawer/DrawerScreen
+var _DrawerScreen = require(541                           ); // 541 = ../views/Drawer/DrawerScreen
 
 var _DrawerScreen2 = babelHelpers.interopRequireDefault(_DrawerScreen);
 
-var _DrawerView = require(541                         ); // 541 = ../views/Drawer/DrawerView
+var _DrawerView = require(542                         ); // 542 = ../views/Drawer/DrawerView
 
 var _DrawerView2 = babelHelpers.interopRequireDefault(_DrawerView);
 
-var _DrawerNavigatorItems = require(546                                   ); // 546 = ../views/Drawer/DrawerNavigatorItems
+var _DrawerNavigatorItems = require(547                                   ); // 547 = ../views/Drawer/DrawerNavigatorItems
 
 var _DrawerNavigatorItems2 = babelHelpers.interopRequireDefault(_DrawerNavigatorItems);
 
-var _NavigatorTypes = require(523               ); // 523 = ./NavigatorTypes
+var _NavigatorTypes = require(524               ); // 524 = ./NavigatorTypes
 
 var _NavigatorTypes2 = babelHelpers.interopRequireDefault(_NavigatorTypes);
 
@@ -58227,7 +58292,7 @@ var DrawerNavigator = function DrawerNavigator(routeConfigs, config) {
 };
 
 exports.default = DrawerNavigator;
-}, 539, null, "react-navigation/src/navigators/DrawerNavigator.js");
+}, 540, null, "react-navigation/src/navigators/DrawerNavigator.js");
 __d(/* react-navigation/src/views/Drawer/DrawerScreen.js */function(global, require, module, exports) {Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -58236,11 +58301,11 @@ var _react = require(187    ); // 187 = react
 
 var _react2 = babelHelpers.interopRequireDefault(_react);
 
-var _SceneView = require(510           ); // 510 = ../SceneView
+var _SceneView = require(511           ); // 511 = ../SceneView
 
 var _SceneView2 = babelHelpers.interopRequireDefault(_SceneView);
 
-var _withCachedChildNavigation = require(535                              ); // 535 = ../../withCachedChildNavigation
+var _withCachedChildNavigation = require(536                              ); // 536 = ../../withCachedChildNavigation
 
 var _withCachedChildNavigation2 = babelHelpers.interopRequireDefault(_withCachedChildNavigation);
 
@@ -58277,7 +58342,7 @@ var DrawerScreen = function (_PureComponent) {
 }(_react.PureComponent);
 
 exports.default = (0, _withCachedChildNavigation2.default)(DrawerScreen);
-}, 540, null, "react-navigation/src/views/Drawer/DrawerScreen.js");
+}, 541, null, "react-navigation/src/views/Drawer/DrawerScreen.js");
 __d(/* react-navigation/src/views/Drawer/DrawerView.js */function(global, require, module, exports) {Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -58286,15 +58351,15 @@ var _react = require(187    ); // 187 = react
 
 var _react2 = babelHelpers.interopRequireDefault(_react);
 
-var _reactNativeDrawerLayoutPolyfill = require(542                                  ); // 542 = react-native-drawer-layout-polyfill
+var _reactNativeDrawerLayoutPolyfill = require(543                                  ); // 543 = react-native-drawer-layout-polyfill
 
 var _reactNativeDrawerLayoutPolyfill2 = babelHelpers.interopRequireDefault(_reactNativeDrawerLayoutPolyfill);
 
-var _addNavigationHelpers = require(494                         ); // 494 = ../../addNavigationHelpers
+var _addNavigationHelpers = require(495                         ); // 495 = ../../addNavigationHelpers
 
 var _addNavigationHelpers2 = babelHelpers.interopRequireDefault(_addNavigationHelpers);
 
-var _DrawerSidebar = require(545              ); // 545 = ./DrawerSidebar
+var _DrawerSidebar = require(546              ); // 546 = ./DrawerSidebar
 
 var _DrawerSidebar2 = babelHelpers.interopRequireDefault(_DrawerSidebar);
 
@@ -58407,11 +58472,11 @@ var DrawerView = function (_PureComponent) {
 }(_react.PureComponent);
 
 exports.default = DrawerView;
-}, 541, null, "react-navigation/src/views/Drawer/DrawerView.js");
-__d(/* react-native-drawer-layout-polyfill/dist/index.js */function(global, require, module, exports) {Object.defineProperty(exports, "__esModule", { value: true });var _reactNativeDrawerLayout = require(543                         );var _reactNativeDrawerLayout2 = _interopRequireDefault(_reactNativeDrawerLayout);function _interopRequireDefault(obj) { // 543 = react-native-drawer-layout
+}, 542, null, "react-navigation/src/views/Drawer/DrawerView.js");
+__d(/* react-native-drawer-layout-polyfill/dist/index.js */function(global, require, module, exports) {Object.defineProperty(exports, "__esModule", { value: true });var _reactNativeDrawerLayout = require(544                         );var _reactNativeDrawerLayout2 = _interopRequireDefault(_reactNativeDrawerLayout);function _interopRequireDefault(obj) { // 544 = react-native-drawer-layout
   return obj && obj.__esModule ? obj : { default: obj };
 }exports.default = _reactNativeDrawerLayout2.default;
-}, 542, null, "react-native-drawer-layout-polyfill/dist/index.js");
+}, 543, null, "react-native-drawer-layout-polyfill/dist/index.js");
 __d(/* react-native-drawer-layout/dist/DrawerLayout.js */function(global, require, module, exports) {Object.defineProperty(exports, "__esModule", { value: true });exports.default = undefined;var _extends = Object.assign || function (target) {
   for (var i = 1; i < arguments.length; i++) {
     var source = arguments[i];for (var key in source) {
@@ -58430,7 +58495,7 @@ __d(/* react-native-drawer-layout/dist/DrawerLayout.js */function(global, requir
   };
 }();var _class, _temp;
 var _react = require(187    );var _react2 = _interopRequireDefault(_react); // 187 = react
-var _reactNativeDismissKeyboard = require(544                            );var _reactNativeDismissKeyboard2 = _interopRequireDefault(_reactNativeDismissKeyboard); // 544 = react-native-dismiss-keyboard
+var _reactNativeDismissKeyboard = require(545                            );var _reactNativeDismissKeyboard2 = _interopRequireDefault(_reactNativeDismissKeyboard); // 545 = react-native-dismiss-keyboard
 var _reactNative = require(12            );function _interopRequireDefault(obj) { // 12 = react-native
   return obj && obj.__esModule ? obj : { default: obj };
 }function _classCallCheck(instance, Constructor) {
@@ -58654,7 +58719,7 @@ var styles = _reactNative.StyleSheet.create({
     bottom: 0,
     right: 0,
     zIndex: 1000 } });
-}, 543, null, "react-native-drawer-layout/dist/DrawerLayout.js");
+}, 544, null, "react-native-drawer-layout/dist/DrawerLayout.js");
 __d(/* react-native-dismiss-keyboard/dist/index.js */function(global, require, module, exports) {Object.defineProperty(exports, '__esModule', {
   value: true
 });
@@ -58669,7 +58734,7 @@ function dismissKeyboard() {
 }
 
 module.exports = exports.default;
-}, 544, null, "react-native-dismiss-keyboard/dist/index.js");
+}, 545, null, "react-native-dismiss-keyboard/dist/index.js");
 __d(/* react-navigation/src/views/Drawer/DrawerSidebar.js */function(global, require, module, exports) {Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -58680,7 +58745,7 @@ var _react2 = babelHelpers.interopRequireDefault(_react);
 
 var _reactNative = require(12            ); // 12 = react-native
 
-var _withCachedChildNavigation = require(535                              ); // 535 = ../../withCachedChildNavigation
+var _withCachedChildNavigation = require(536                              ); // 536 = ../../withCachedChildNavigation
 
 var _withCachedChildNavigation2 = babelHelpers.interopRequireDefault(_withCachedChildNavigation);
 
@@ -58762,7 +58827,7 @@ var styles = _reactNative.StyleSheet.create({
     backgroundColor: '#fff'
   }
 });
-}, 545, null, "react-navigation/src/views/Drawer/DrawerSidebar.js");
+}, 546, null, "react-navigation/src/views/Drawer/DrawerSidebar.js");
 __d(/* react-navigation/src/views/Drawer/DrawerNavigatorItems.js */function(global, require, module, exports) {Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -58773,7 +58838,7 @@ var _react2 = babelHelpers.interopRequireDefault(_react);
 
 var _reactNative = require(12            ); // 12 = react-native
 
-var _TouchableItem = require(507               ); // 507 = ../TouchableItem
+var _TouchableItem = require(508               ); // 508 = ../TouchableItem
 
 var _TouchableItem2 = babelHelpers.interopRequireDefault(_TouchableItem);
 
@@ -58859,7 +58924,7 @@ var styles = _reactNative.StyleSheet.create({
 });
 
 exports.default = DrawerNavigatorItems;
-}, 546, null, "react-navigation/src/views/Drawer/DrawerNavigatorItems.js");
+}, 547, null, "react-navigation/src/views/Drawer/DrawerNavigatorItems.js");
 __d(/* react-navigation/src/views/withNavigation.js */function(global, require, module, exports) {Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -58891,7 +58956,7 @@ function withNavigation(Component) {
 
   return (0, _hoistNonReactStatics2.default)(componentWithNavigation, Component);
 }
-}, 547, null, "react-navigation/src/views/withNavigation.js");
+}, 548, null, "react-navigation/src/views/withNavigation.js");
 __d(/* contacts/app/containers/MainContainer.js */function(global, require, module, exports) {Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -58904,11 +58969,11 @@ var _reactRedux = require(417          ); // 417 = react-redux
 
 var _redux = require(433    ); // 433 = redux
 
-var _Main = require(549            ); // 549 = ../pages/Main
+var _Main = require(550            ); // 550 = ../pages/Main
 
 var _Main2 = babelHelpers.interopRequireDefault(_Main);
 
-var _persons = require(485                 ); // 485 = ../actions/persons
+var _persons = require(486                 ); // 486 = ../actions/persons
 
 var personActionCreators = babelHelpers.interopRequireWildcard(_persons);
 
@@ -58949,7 +59014,7 @@ var mapDispatchToProps = function mapDispatchToProps(dispatch) {
 };
 
 exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(MainContainer);
-}, 548, null, "contacts/app/containers/MainContainer.js");
+}, 549, null, "contacts/app/containers/MainContainer.js");
 __d(/* rncontacts/app/pages/Main.js */function(global, require, module, exports) {Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -58980,13 +59045,16 @@ var Main = function (_React$Component) {
     };
 
     _this.renderItem = _this.renderItem.bind(_this);
+
+    if (props.data.loading == false && props.data.personList.length == 0) {
+      var personActions = props.personActions;
+
+      personActions.requestPersonList();
+    }
     return _this;
   }
 
   babelHelpers.createClass(Main, [{
-    key: 'componentDidMount',
-    value: function componentDidMount() {}
-  }, {
     key: 'press',
     value: function press(person) {
       console.log(person.name + ' ' + person.surname + ' clicked');
@@ -58994,7 +59062,6 @@ var Main = function (_React$Component) {
   }, {
     key: 'addPressed',
     value: function addPressed() {
-      console.log('add pressed!');
       this.props.navigation.navigate('Create');
     }
   }, {
@@ -59075,7 +59142,7 @@ var styles = _reactNative.StyleSheet.create({
     flex: 1
   }
 });
-}, 549, null, "rncontacts/app/pages/Main.js");
+}, 550, null, "rncontacts/app/pages/Main.js");
 __d(/* rncontacts/app/containers/CreateContainer.js */function(global, require, module, exports) {Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -59088,11 +59155,11 @@ var _reactRedux = require(417          ); // 417 = react-redux
 
 var _redux = require(433    ); // 433 = redux
 
-var _Create = require(551              ); // 551 = ../pages/Create
+var _Create = require(552              ); // 552 = ../pages/Create
 
 var _Create2 = babelHelpers.interopRequireDefault(_Create);
 
-var _person = require(488                ); // 488 = ../actions/person
+var _person = require(489                ); // 489 = ../actions/person
 
 var personActionCreators = babelHelpers.interopRequireWildcard(_person);
 
@@ -59133,7 +59200,7 @@ var mapDispatchToProps = function mapDispatchToProps(dispatch) {
 };
 
 exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(CreateContainer);
-}, 550, null, "rncontacts/app/containers/CreateContainer.js");
+}, 551, null, "rncontacts/app/containers/CreateContainer.js");
 __d(/* rncontacts/app/pages/Create.js */function(global, require, module, exports) {Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -59152,8 +59219,6 @@ var Create = function (_React$Component) {
 
     var _this = babelHelpers.possibleConstructorReturn(this, (Create.__proto__ || Object.getPrototypeOf(Create)).call(this, props));
 
-    console.log('constructor');
-    console.log(props);
     _this.state = {
       name: '',
       surname: '',
@@ -59164,17 +59229,18 @@ var Create = function (_React$Component) {
     };
     _this.isValid.bind(_this);
     _this.saveClicked.bind(_this);
-
     return _this;
   }
 
   babelHelpers.createClass(Create, [{
     key: 'componentWillReceiveProps',
     value: function componentWillReceiveProps(nextProps) {
-      console.log('will rec props');
-      console.log(nextProps);
       this.state.loading = nextProps.data.loading;
       this.state.person = nextProps.data.person;
+      if (nextProps.data.person != null) {
+        var nav = this.props.navigation;
+        nav.goBack();
+      }
     }
   }, {
     key: 'componentWillUpdate',
@@ -59264,9 +59330,8 @@ var styles = _reactNative.StyleSheet.create({
   textBad: {
     color: 'red'
   }
-
 });
-}, 551, null, "rncontacts/app/pages/Create.js");
+}, 552, null, "rncontacts/app/pages/Create.js");
 ;require(118);
 ;require(0);
 //# sourceMappingURL=index.android.map
