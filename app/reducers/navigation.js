@@ -18,6 +18,12 @@ const createNavReducer = function (navigator) {
           NavigationActions.navigate({ routeName: 'Create' }),
           state)
         break
+      case types.GOTO_SHOW:
+        nextState = navigator.router.getStateForAction(
+          NavigationActions.navigate({ routeName: 'Show', params: action.person }),
+          state
+        )
+        break
       default:
         nextState = navigator.router.getStateForAction(action, state)
         break

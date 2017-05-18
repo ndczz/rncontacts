@@ -9,6 +9,7 @@ export const RECEIVE_NEW_PERSON = 'RECEIVE_NEW_PERSON'
 export const GOTO_BACK = 'GOTO_BACK'
 export const GOTO_CREATE = 'GOTO_CREATE'
 export const GOTO_MAIN = 'GOTO_MAIN'
+export const GOTO_SHOW = 'GOTO_SHOW'
 
 export const CREATE_FORM_SUBMIT = 'CREATE_FORM_SUBMIT'
 export const CREATE_FORM_SUCCESS = 'CREATE_FORM_SUCCESS'

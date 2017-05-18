@@ -25,8 +25,5 @@ export const request = (url, method, body) => {
           reject(responseData)
         }
       })
-    /*.catch((error) => {
-      reject(error)
-    })*/
   })
 }

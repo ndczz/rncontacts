@@ -3,12 +3,14 @@ import { connect } from 'react-redux'
 import { StackNavigator, addNavigationHelpers } from 'react-navigation'
 import MainContainer from '../containers/MainContainer'
 import CreateContainer from '../containers/CreateContainer'
+import ShowContainer from '../containers/ShowContainer'
 
 
 export const AppNav = StackNavigator(
   {
     Main: { screen: MainContainer },
-    Create: { screen: CreateContainer }
+    Create: { screen: CreateContainer },
+    Show: {screen: ShowContainer}
   }
 )
 

@@ -17,3 +17,10 @@ export function gotoMain() {
     type: types.GOTO_MAIN
   }
 }
+
+export function gotoShow(person) {
+  return {
+    type: types.GOTO_SHOW,
+    person
+  }
+}

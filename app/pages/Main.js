@@ -33,6 +33,8 @@ class Main extends React.Component {
 
   press(person) {
     console.log(`${person.name + ' ' + person.surname} clicked`)
+    const { navActions } = this.props
+    navActions.gotoShow(person)
   }
 
   addPressed() {
