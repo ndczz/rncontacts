@@ -2,8 +2,12 @@ import { NavigationActions } from 'react-navigation'
 import * as types from '../constants/ActionTypes'
 
 const createNavReducer = function (navigator) {
-  const initialState = navigator.router.getStateForAction(
-    navigator.router.getActionForPathAndParams('Main'))
+  const initialState = navigator.router.getStateForAction(NavigationActions.reset(
+    {
+      index: 0,
+      actions: [NavigationActions.navigate({ routeName: 'Main' })]
+    }
+  ))
 
   const navReducer = (state = initialState, action) => {
     let nextState

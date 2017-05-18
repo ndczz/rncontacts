@@ -8,6 +8,8 @@ import {
   View,
   Button
 } from 'react-native'
+import { showTestNotification } from '../utils/notificator'
+
 
 class Main extends React.Component {
 
@@ -29,10 +31,11 @@ class Main extends React.Component {
       const { personActions } = props
       personActions.requestPersonList()
     }
+
+    showTestNotification()
   }
 
   press(person) {
-    console.log(`${person.name + ' ' + person.surname} clicked`)
     const { navActions } = this.props
     navActions.gotoShow(person)
   }
@@ -60,8 +63,21 @@ class Main extends React.Component {
     personActions.requestPersonList()
   }
 
+  showUserIfExist(n) {
+    if (n.userInteraction == true && n.id == '0') {
+      const { navActions, data } = this.props
+      const person = data.personList[0]
+      navActions.gotoShow(person)
+    }
+  }
+
   componentWillUpdate(nextProps, nextState) {
     nextState.dataSource = nextState.dataSource.cloneWithRows(nextProps.data.personList)
+    let n = nextProps.notification.notification
+    if (n != null) {
+      this.showUserIfExist(n)
+    }
+
   }
 
   render() {
